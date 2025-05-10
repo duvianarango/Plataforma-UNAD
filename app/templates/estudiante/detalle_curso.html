@@ -1,0 +1,189 @@
+{% extends "estudiante/base.html" %}
+
+{% block titulo %}Detalle: {{ curso.titulo if curso else "Curso" }} | Clase Tech{% endblock %}
+
+{% block estilos_adicionales %}
+<style>
+    .curso-detalle-page .curso-header {
+        background: linear-gradient(135deg, var(--color-primario-azul, #1a56db) 0%, #0d6efd 100%); /* Degradado azul */
+        color: var(--color-blanco, #ffffff);
+        padding: 2.5rem 2rem;
+        margin-bottom: 2.5rem;
+        border-radius: 0.75rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    .curso-detalle-page .curso-header h1 {
+        font-weight: 700;
+        font-size: 2.2rem; 
+        margin-bottom: 0.5rem;
+    }
+    .curso-detalle-page .curso-header .breadcrumb-item a,
+    .curso-detalle-page .curso-header .breadcrumb-item.active,
+    .curso-detalle-page .curso-header .breadcrumb-item::before {
+        color: rgba(255,255,255,0.85); 
+    }
+    .curso-detalle-page .curso-header .breadcrumb-item a:hover {
+        color: var(--color-blanco, #ffffff);
+    }
+
+
+    .info-card {
+        background-color: var(--bs-body-bg, #fff);
+        border: 1px solid var(--bs-border-color-translucent, #dee2e6);
+        border-radius: 0.5rem;
+        padding: 1.5rem; 
+        box-shadow: 0 0.125rem 0.35rem rgba(0,0,0,.06);
+        margin-bottom: 1.5rem; 
+    }
+    .info-card .info-label {
+        font-size: 0.85rem;
+        color: var(--bs-secondary-text, #6c757d);
+        margin-bottom: 0.25rem;
+        display: block;
+        font-weight: 500;
+    }
+    .info-card .info-value {
+        font-size: 1rem;
+        color: var(--bs-body-color, #212529);
+        background-color: var(--bs-tertiary-bg, #f8f9fa); 
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.25rem;
+        display: block; 
+        border: 1px solid var(--bs-border-color-translucent, #e9ecef);
+    }
+    .info-card .info-value.textarea-value { 
+        min-height: 80px;
+        white-space: pre-wrap; 
+    }
+
+    .actions-bar {
+        padding: 1.5rem;
+        background-color: var(--bs-tertiary-bg, #f8f9fa);
+        border: 1px solid var(--bs-border-color-translucent, #dee2e6);
+        border-radius: 0.5rem;
+        margin-top: 1.5rem; 
+    }
+    .actions-bar .btn {
+        font-weight: 500;
+        padding: 0.6rem 1.25rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.85rem;
+    }
+    .actions-bar .btn-registrar {
+        background-color: var(--bs-success, #198754); 
+        border-color: var(--bs-success, #198754);
+    }
+    .actions-bar .btn-registrar:hover {
+        background-color: var(--bs-success-dark, #157347);
+        border-color: var(--bs-success-dark, #157347);
+    }
+    .actions-bar .mensaje-registrado {
+        color: var(--bs-success, #198754);
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+    }
+    .actions-bar .mensaje-registrado .bi {
+        font-size: 1.2rem;
+        margin-right: 0.5rem;
+    }
+
+</style>
+{% endblock %}
+
+{% block contenido %}
+<div class="container mt-4 mb-5 curso-detalle-page">
+
+    <div class="curso-header">
+        <nav aria-label="breadcrumb" style="--bs-breadcrumb-divider: '>';">
+            <ol class="breadcrumb mb-2">
+                <li class="breadcrumb-item"><a href="{{ url_for('dashboard_estudiante') }}">Inicio</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('listar_cursos_no_asignados') }}">Cursos</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ curso.titulo if curso else "Detalle" }}</li>
+            </ol>
+        </nav>
+        <h1>{{ curso.titulo if curso else "Detalle del Curso" }}</h1>
+    </div>
+
+    <div class="card info-card">
+        <div class="card-body">
+            <h5 class="card-title mb-4 fw-semibold"><i class="bi bi-info-circle-fill me-2 text-primary"></i>Información Básica del Curso</h5>
+
+            <div class="row g-3"> 
+                <div class="col-md-12">
+                    <label class="info-label">Nombre del Curso</label>
+                    <div class="info-value">{{ curso.titulo }}</div>
+                </div>
+
+                {% if curso.codigo %}
+                <div class="col-md-6">
+                    <label class="info-label">Código</label>
+                    <div class="info-value">{{ curso.codigo }}</div>
+                </div>
+                {% endif %}
+
+                {% if curso.departamento %}
+                <div class="col-md-6">
+                    <label class="info-label">Departamento</label>
+                    <div class="info-value">{{ curso.departamento }}</div>
+                </div>
+                {% endif %}
+
+                <div class="col-12">
+                    <label class="info-label">Descripción</label>
+                    <div class="info-value textarea-value">{{ curso.descripcion }}</div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="info-label">Créditos</label>
+                    <div class="info-value">{{ curso.creditos }}</div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="info-label">Horas</label>
+                    <div class="info-value">{{ curso.horas }}</div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="info-label">Fecha de Inicio</label>
+                    <div class="info-value">{{ curso.fecha_inicio.strftime('%d de %B de %Y') if curso.fecha_inicio else 'No especificada' }}</div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="info-label">Fecha de Fin</label>
+                    <div class="info-value">{{ curso.fecha_fin.strftime('%d de %B de %Y') if curso.fecha_fin else 'No especificada' }}</div>
+                </div>
+                
+                {% if curso.creador and curso.creador.nombre %}
+                <div class="col-md-12">
+                    <label class="info-label">Creador del Curso</label>
+                    <div class="info-value">{{ curso.creador.nombre }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="actions-bar d-flex justify-content-between align-items-center">
+        <a href="{{ url_for('listar_cursos_no_asignados') if request.referrer and 'cursos' in request.referrer else url_for('dashboard_estudiante') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left-circle me-1"></i> Volver
+        </a>
+        
+        {% if registrado is defined %} {# Asegúrate de pasar 'registrado' desde tu endpoint #}
+            {% if not registrado %}
+            <form method="post" action="/registrar_estudiante_curso/{{ curso.id }}" class="mb-0">
+                <button type="submit" class="btn btn-primary btn-registrar">
+                    <i class="bi bi-check2-circle me-1"></i> Inscribirme en este Curso
+                </button>
+            </form>
+            {% else %}
+            <span class="mensaje-registrado">
+                <i class="bi bi-patch-check-fill"></i> Ya estás inscrito en este curso
+            </span>
+            {% endif %}
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

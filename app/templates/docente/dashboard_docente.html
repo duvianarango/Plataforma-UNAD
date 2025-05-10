@@ -1,0 +1,33 @@
+<!-- templates/dashboard_docente.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h4 class="fw-bold mb-4">Bienvenido, Docente {{ usuario.nombre }}</h4>
+    <p class="text-muted">Tus cursos asignados:</p>
+
+    <h5 class="fw-bold mb-3">Cursos</h5>
+    {% if cursos %}
+    <div class="row justify-content-center">
+        {% for curso in cursos %}
+        <div class="col-md-4 mb-4">
+            <div class="curso-card shadow-sm text-center h-100">
+                <div class="mb-2">
+                    <i class="bi bi-journal-code fs-3 text-primary"></i>
+                </div>
+                <p class="text-secondary fw-semibold">{{ curso.departamento }}</p>
+                <h5 class="fw-bold">{{ curso.titulo }}</h5>
+                <p class="text-muted">{{ curso.descripcion }}</p>
+                <div class="d-flex justify-content-center gap-2 mt-3">
+                    <a href="/cursos/{{ curso.id }}/ver" class="btn btn-detalle btn-sm">Ver detalles</a>
+                    <a href="/curso/{{ curso.id }}/editar" class="btn btn-outline-secondary btn-sm">Editar</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-muted">No estás inscrito en ningún curso aún.</p>
+    {% endif %}
+</div>
+{% endblock %}

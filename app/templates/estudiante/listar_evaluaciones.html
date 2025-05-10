@@ -1,0 +1,118 @@
+{% extends "estudiante/base.html" %}
+
+{% block estilos_adicionales %}
+<style>
+    .evaluacion-item {
+        border: 1px solid #e0e0e0;
+        border-radius: 0.375rem;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1rem;
+        background-color: #fff;
+        box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,.075);
+        display: flex;
+        align-items: center;
+    }
+
+    .evaluacion-item .evaluacion-icono {
+        font-size: 1.5rem;
+        color: #0d6efd;
+        margin-right: 1rem;
+    }
+
+    .evaluacion-item .evaluacion-contenido {
+        flex-grow: 1;
+    }
+
+    .evaluacion-item .evaluacion-titulo {
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+        font-size: 1.1rem;
+    }
+
+    .evaluacion-item .evaluacion-descripcion {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin-bottom: 0.35rem;
+    }
+
+    .evaluacion-item .evaluacion-fecha,
+    .evaluacion-item .evaluacion-curso {
+        font-size: 0.85rem;
+        color: #495057;
+        display: block;
+    }
+
+    .evaluacion-item .evaluacion-fecha {
+        margin-bottom: 0.15rem;
+    }
+
+    .evaluacion-item .evaluacion-acciones a.accion-texto {
+        color: #0d6efd;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.9rem;
+        margin-left: 1rem;
+        padding: 0.25rem 0.5rem;
+        border: 1px solid transparent;
+        border-radius: 0.25rem;
+    }
+
+    .evaluacion-item .evaluacion-acciones a.accion-texto:hover {
+        text-decoration: underline;
+        background-color: #f8f9fa;
+        border-color: #dee2e6;
+    }
+
+    .evaluacion-expirada {
+        color: #dc3545;
+        font-weight: 500;
+        margin-left: 1rem;
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
+
+{% block contenido %}
+<div class="container mt-5 mb-5">
+    <h2 class="mb-3 fw-semibold">Evaluaciones</h2>
+    <p class="text-muted mb-4">Evaluaciones asignadas</p>
+
+    {% if evaluaciones %}
+        <div>
+        {% for eval in evaluaciones %}
+            <div class="evaluacion-item">
+                <div class="evaluacion-icono">
+                    <i class="bi bi-file-earmark-text-fill"></i>
+                </div>
+                <div class="evaluacion-contenido">
+                    <h5 class="evaluacion-titulo mb-1">{{ eval.titulo }}</h5>
+                    {% if eval.descripcion %}
+                        <p class="evaluacion-descripcion">{{ eval.descripcion|truncate(100, True) }}</p>
+                    {% endif %}
+                    <small class="evaluacion-fecha">
+                        {% if eval.fecha_limite %}
+                            Fecha Límite: {{ eval.fecha_limite.strftime('%d de %B, %Y') }}
+                        {% elif eval.fecha_inicio %}
+                            Disponible desde: {{ eval.fecha_inicio.strftime('%d de %B, %Y') }}
+                        {% endif %}
+                    </small>
+                    <small class="evaluacion-curso">Curso: {{ eval.curso.titulo if eval.curso else 'No asignado' }}</small>
+                </div>
+                <div class="evaluacion-acciones">
+                    {% if eval.fecha_limite and eval.fecha_limite < fecha_actual %}
+                        <span class="evaluacion-expirada">Evaluación expirada</span>
+                    {% else %}
+                        <a href="/evaluaciones-estudiante/{{ eval.id }}" title="Ver Detalles de la Evaluación" class="accion-texto">Ver</a>
+        
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info mt-4">
+            <i class="bi bi-info-circle-fill me-2"></i>No tienes evaluaciones asignadas en este momento.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

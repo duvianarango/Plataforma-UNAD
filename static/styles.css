@@ -1,0 +1,49 @@
+/* Estilos para el Foro */
+.card.shadow-lg { /* Sombra más pronunciada para la tarjeta principal del foro */
+    box-shadow: 0 1rem 3rem rgba(0,0,0,.175) !important;
+}
+
+.btn-nuevo-mensaje {
+    font-weight: 500;
+}
+
+.mensaje-foro-item {
+    border-bottom: 1px solid #e9ecef; /* Separador más sutil entre mensajes */
+    padding-left: 0; /* Ajustar si se usa list-group-flush */
+    padding-right: 0;
+}
+
+.mensaje-foro-item:last-child {
+    border-bottom: none;
+}
+
+.avatar-foro {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover; /* Para que la imagen se ajuste bien */
+}
+
+.list-group-item strong {
+    color: #343a40; /* Un color un poco más oscuro para el nombre */
+}
+
+.alert-light.border {
+    background-color: #f8f9fa;
+    border-color: #dee2e6 !important;
+}
+
+.card-body.bg-light.border-dashed { /* Estilo para el formulario colapsable */
+    border: 2px dashed #d1d9e6;
+    background-color: #fdfdff !important; /* Un fondo muy claro */
+}
+
+
+/* Asegúrate de que estos estilos no entren en conflicto con otros existentes */
+body {
+    background-color: #eef2f7; /* Un fondo global ligeramente azulado/grisáceo si quieres */
+}
+
+.text-primary { /* Asegúrate de que tu color primario sea agradable */
+    color: #0d6efd !important; /* Ejemplo de color primario de Bootstrap */
+}

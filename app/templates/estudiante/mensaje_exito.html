@@ -1,0 +1,20 @@
+{% extends "estudiante/base.html" %}
+
+{% block titulo %}Registro Exitoso{% endblock %}
+
+{% block contenido %}
+<div class="container text-center mt-5">
+    <div class="alert alert-success shadow-sm rounded-3">
+        <h4 class="alert-heading">¡Éxito!</h4>
+        <p>{{ mensaje }}</p>
+        <hr>
+        <p class="mb-0">Serás redirigido automáticamente...</p>
+    </div>
+</div>
+
+<script>
+    setTimeout(function() {
+        window.location.href = "{{ redirect_url }}";
+    }, 3000); // 3 segundos
+</script>
+{% endblock %}

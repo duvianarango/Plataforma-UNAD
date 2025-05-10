@@ -1,0 +1,326 @@
+{% extends "estudiante/base.html" %}
+
+{% block titulo %}Foro: {{ foro.titulo }}{% endblock %}
+
+{% block estilos_adicionales %}
+<link href="{{ url_for('static', path='css/estilos.css') }}" rel="stylesheet">
+<style>
+    
+    /* Estilos específicos para la página del foro */
+    .card.shadow-lg {
+        box-shadow: 0 0.75rem 1.5rem rgba(0,0,0,.08) !important;
+        border: 1px solid #dee2e6;
+    }
+
+    .foro-header {
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e0e0e0;
+    }
+    .foro-header .text-primary {
+        color: #0056b3 !important;
+    }
+
+    .mensaje-foro-item {
+        border-bottom: 1px solid #e9ecef;
+        padding: 1.25rem 0.25rem;
+    }
+
+    .mensaje-foro-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0.5rem;
+    }
+
+    .mensaje-autor-nombre {
+        font-weight: 600;
+        color: #0d6efd; /* Nombre del usuario en azul primario de Bootstrap */
+        margin-bottom: 0.15rem;
+        display: block;
+    }
+    .mensaje-fecha {
+        font-size: 0.8em;
+        color: #6c757d;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+    .mensaje-contenido {
+        color: #343a40;
+        line-height: 1.6;
+        padding-left: 0.5rem;
+    }
+
+    .alert-foro-vacio {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        color: #6c757d;
+    }
+
+    .formulario-nuevo-mensaje-wrapper {
+        background-color: #f7f9fc;
+        border: 1px solid #e0e6ed;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        margin-top: 1rem;
+    }
+
+    .formulario-nuevo-mensaje-wrapper .form-label {
+        font-weight: 500;
+        color: #333;
+    }
+
+    .editor-toolbar {
+        background-color: #f0f2f5;
+        padding: 0.5rem 0.75rem;
+        border-top-left-radius: 0.375rem;
+        border-top-right-radius: 0.375rem;
+        border: 1px solid #ced4da;
+        border-bottom: none;
+    }
+    .editor-toolbar button {
+        background: none;
+        border: none;
+        padding: 0.25rem 0.5rem;
+        color: #495057;
+        font-size: 0.9rem;
+    }
+    .editor-toolbar button:hover {
+        color: #0d6efd;
+        background-color: #e0e6ed;
+    }
+     .editor-toolbar button i {
+        pointer-events: none;
+    }
+
+    #contenidoMensaje {
+        min-height: 120px;
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+    }
+
+    .btn-enviar-mensaje {
+        background-color: #198754;
+        border-color: #198754;
+        font-weight: 500;
+    }
+    .btn-enviar-mensaje:hover {
+        background-color: #157347;
+        border-color: #146c43;
+    }
+
+
+</style>
+
+<style>
+    /* Estilos existentes... */
+
+    /* Estilos para cada tarjeta de mensaje */
+    .mensaje-card {
+        background-color: #fff; /* Fondo blanco para la tarjeta */
+        border: 1px solid #e0e0e0; /* Borde sutil como en la imagen */
+        border-radius: 0.5rem; /* Bordes redondeados */
+        padding: 1rem 1.25rem; /* Espaciado interno */
+        box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,.075); /* Sombra ligera */
+        /* margin-bottom: 1rem; ya está aplicado con mb-3 en el HTML */
+    }
+
+    .mensaje-card-header {
+        /* Puedes añadir estilos específicos para el encabezado si es necesario,
+           por ejemplo, un borde inferior o un color de fondo ligero.
+           Por ahora, el espaciado lo manejan los elementos internos. */
+        margin-bottom: 0.75rem; /* Espacio entre el header y el body del mensaje */
+    }
+
+    .mensaje-autor-nombre {
+        font-weight: 600;
+        color: #0d6efd; /* Nombre del usuario en azul primario de Bootstrap */
+        margin-bottom: 0.15rem;
+        display: block; /* O inline-block si quieres la fecha al lado y controlas el flujo */
+    }
+    .mensaje-fecha {
+        font-size: 0.8em;
+        color: #6c757d;
+        display: block; /* O inline-block */
+        /* margin-bottom: 0.5rem; -- Se ajusta por el margin-bottom de mensaje-card-header */
+    }
+    .mensaje-contenido {
+        color: #343a40;
+        line-height: 1.6;
+        /* padding-left: 0.5rem; -- Eliminado, el padding ya está en .mensaje-card */
+        margin-top: 0; /* Asegúrate de que no haya margen superior extra */
+        margin-bottom: 0; /* Asegúrate de que no haya margen inferior extra */
+    }
+
+    /* Puedes mantener tus otros estilos como .alert-foro-vacio, etc. */
+    /* ...otros estilos ... */
+</style>
+{% endblock %}
+
+{% block contenido %}
+<div class="container mt-5 mb-5">
+        <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/foros">Foros</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Ver Foro</li>
+        </ol>
+    </nav>
+    <div class="card shadow-lg rounded-4 p-lg-5 p-4">
+        <div class="foro-header text-center">
+            <h2 class="text-primary fw-bolder mb-1">{{ foro.titulo }}</h2>
+            <p class="text-muted mb-3">{{ foro.descripcion }}</p>
+            {% if foro.curso %}
+            <p class="text-muted mb-0"><small>Curso: <a href="/detallecurso/{{ foro.curso.id }}" class="text-decoration-none">{{ foro.curso.titulo }}</a></small></p>
+            {% endif %}
+        </div>
+        <hr class="my-4">
+
+        {% if exito %}
+       
+        <div class="position-fixed top-0 start-50 translate-middle-x p-3" style="z-index: 1055;">
+            <div id="mensajeToastExito" class="toast align-items-center text-bg-info border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="5000">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="bi bi-info-circle-fill me-2"></i>¡Tu mensaje ha sido publicado con éxito!
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+                </div>
+            </div>
+        </div>
+        
+        {% endif %}
+
+        <div class="mb-4">
+            <h4 class="fw-semibold mb-3">Mensajes</h4>
+            <div>
+                {% for mensaje in mensajes %}
+                <div class="mensaje-card mb-3">
+                    <div class="mensaje-card-header">
+                        <span class="mensaje-autor-nombre">{{ mensaje.usuario.nombre }}</span>
+                        <small class="mensaje-fecha">{{ mensaje.fecha.strftime('%d/%m/%Y, %I:%M %p') }}</small>
+                    </div>
+                    <div class="mensaje-card-body">
+                        <p class="mensaje-contenido">{{ mensaje.contenido | safe }}</p>
+                    </div>
+                </div>
+                {% else %}
+                <div class="alert alert-foro-vacio mt-3 text-center">
+                    <i class="bi bi-chat-square-dots fs-3 d-block mb-2"></i>
+                    No hay mensajes aún en este foro. ¡Sé el primero en participar!
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {# Botón principal para desplegar el formulario de nuevo mensaje #}
+        <div class="text-center mt-4 mb-3" id="contenedorBtnPrincipalNuevoMensaje">
+            <button class="btn btn-primary btn-lg btn-nuevo-mensaje-inferior" type="button" data-bs-toggle="collapse" data-bs-target="#formularioNuevoMensaje" aria-expanded="false" aria-controls="formularioNuevoMensaje">
+                <i class="bi bi-pencil-square me-2"></i>Escribir Nuevo Mensaje
+            </button>
+        </div>
+
+        {# Formulario colapsable para nuevo mensaje #}
+        <div class="collapse" id="formularioNuevoMensaje">
+            <div class="formulario-nuevo-mensaje-wrapper">
+                <h5 class="fw-semibold mb-3">Escribe tu mensaje:</h5>
+                <form method="post" action="/foros/{{ foro.id }}/mensaje" id="formPublicarMensaje">
+                    <div class="mb-3">
+                        <div class="editor-toolbar">
+                            <button type="button" title="Negrita" onclick="formatDoc('bold');"><i class="bi bi-type-bold"></i></button>
+                            <button type="button" title="Cursiva" onclick="formatDoc('italic');"><i class="bi bi-type-italic"></i></button>
+                            <button type="button" title="Subrayado" onclick="formatDoc('underline');"><i class="bi bi-type-underline"></i></button>
+                            <button type="button" title="Lista no ordenada" onclick="formatDoc('insertUnorderedList');"><i class="bi bi-list-ul"></i></button>
+                            <button type="button" title="Lista ordenada" onclick="formatDoc('insertOrderedList');"><i class="bi bi-list-ol"></i></button>
+                        </div>
+                        <textarea class="form-control" name="contenido" id="contenidoMensaje" rows="5" required placeholder="Comparte tus ideas..."></textarea>
+                    </div>
+                    <div class="d-flex justify-content-end">
+                        <button type="button" class="btn btn-outline-secondary me-2" data-bs-toggle="collapse" data-bs-target="#formularioNuevoMensaje" aria-expanded="false" aria-controls="formularioNuevoMensaje">Cancelar</button>
+                        <button type="submit" class="btn btn-enviar-mensaje">
+                            <i class="bi bi-send-fill me-2"></i>Publicar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="mt-5 pt-4 border-top text-center">
+            <a href="/foros" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left-circle-fill me-2"></i> Volver a la Lista de Foros
+            </a>
+        </div>
+    </div>
+</div>
+
+{% block scripts_adicionales %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const url = new URL(window.location.href);
+    const mensajeToastExitoEl = document.getElementById('mensajeToastExito');
+    const contenedorBtnPrincipal = document.getElementById('contenedorBtnPrincipalNuevoMensaje');
+    const formNuevoMensaje = document.getElementById('formularioNuevoMensaje');
+    var collapseFormInstance = formNuevoMensaje ? new bootstrap.Collapse(formNuevoMensaje, { toggle: false }) : null;
+
+    function mostrarBotonPrincipalNuevoMensaje() {
+        if (contenedorBtnPrincipal) {
+            contenedorBtnPrincipal.style.display = 'block'; // O 'flex' o lo que corresponda a su display original
+        }
+    }
+
+    function ocultarBotonPrincipalNuevoMensaje() {
+        if (contenedorBtnPrincipal) {
+            contenedorBtnPrincipal.style.display = 'none';
+        }
+    }
+
+    if (mensajeToastExitoEl) { // Si el toast de éxito existe (porque exito=true en el backend)
+        var toast = new bootstrap.Toast(mensajeToastExitoEl);
+        toast.show(); // Mostrar el toast
+
+        ocultarBotonPrincipalNuevoMensaje(); // Ocultar el botón principal mientras el toast está potencialmente visible
+
+        // Cuando el toast se oculte (ya sea por el usuario o automáticamente)
+        mensajeToastExitoEl.addEventListener('hidden.bs.toast', function () {
+            mostrarBotonPrincipalNuevoMensaje(); // Volver a mostrar el botón principal
+            // Si el formulario estaba abierto (por ejemplo, si el usuario envió y se recargó con ?exito=true), ciérralo.
+            if (collapseFormInstance && formNuevoMensaje.classList.contains('show')) {
+                 collapseFormInstance.hide();
+            }
+        });
+    } else {
+        // Si no hay mensaje de éxito al cargar, el botón principal debe estar visible
+        mostrarBotonPrincipalNuevoMensaje();
+    }
+
+    // Limpiar el parámetro 'exito' de la URL en cualquier caso.
+    if (url.searchParams.has('exito')) {
+        url.searchParams.delete('exito');
+        window.history.replaceState({}, document.title, url.toString());
+    }
+
+    // Funcionalidad de la barra de herramientas
+    window.formatDoc = function(sCmd, sValue) {
+      if (document.queryCommandSupported(sCmd)) {
+        document.execCommand(sCmd, false, sValue);
+        const textarea = document.getElementById('contenidoMensaje');
+        textarea.focus();
+      } else {
+        console.warn('El comando ' + sCmd + ' no es soportado por el navegador.');
+      }
+    }
+
+    // Event listener para cuando el formulario colapsable se muestra o se oculta
+    if (formNuevoMensaje) {
+        formNuevoMensaje.addEventListener('show.bs.collapse', function () {
+            ocultarBotonPrincipalNuevoMensaje();
+        });
+        formNuevoMensaje.addEventListener('hide.bs.collapse', function () {
+            // Solo mostrar el botón principal si el toast de éxito no está activo/visible
+            // Esta comprobación es un poco más compleja con toasts que se eliminan del DOM.
+            // Por ahora, simplemente lo mostramos, y la lógica del 'hidden.bs.toast' se encargará si el toast existía.
+            if (!document.getElementById('mensajeToastExito')) { // Si el toast ya no existe en el DOM
+                 mostrarBotonPrincipalNuevoMensaje();
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
+
+{% endblock %}

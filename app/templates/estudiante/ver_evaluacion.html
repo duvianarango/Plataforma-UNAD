@@ -1,0 +1,97 @@
+{% extends "estudiante/base.html" %}
+
+{% block contenido %}
+<div class="container mt-5 mb-5">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/evaluaciones-estudiante">Evaluaciones</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Ver Evaluación</li>
+        </ol>
+    </nav>
+
+    <h2 class="mb-4 fw-semibold">Detalle Evaluación</h2>
+
+    <div class="mb-3">
+        <label class="form-label">Título de la evaluación</label>
+        <input type="text" class="form-control" value="{{ evaluacion.titulo }}" disabled>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Descripción</label>
+        <textarea class="form-control" rows="3" disabled>{{ evaluacion.descripcion }}</textarea>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Fecha de inicio</label>
+            <input type="text" class="form-control" value="{{ evaluacion.fecha_inicio.strftime('%d/%m/%Y') if evaluacion.fecha_inicio else 'No especificada' }}" disabled>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Fecha límite</label>
+            <input type="text" class="form-control" value="{{ evaluacion.fecha_limite.strftime('%d/%m/%Y') if evaluacion.fecha_limite else 'No especificada' }}" disabled>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Curso</label>
+            <input type="text" class="form-control" value="{{ evaluacion.curso.titulo if evaluacion.curso else 'No asignado' }}" disabled>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Puntaje máximo</label>
+            <input type="text" class="form-control" value="{{ evaluacion.puntaje_maximo }}" disabled>
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <label class="form-label">Tipo de Evaluación</label>
+        <div class="d-flex gap-3">
+            <div class="card text-center flex-fill border-primary {{ 'border-2' if evaluacion.tipo == 'Examen' }}">
+                <div class="card-body">
+                    <i class="bi bi-file-earmark-text fs-2 text-primary"></i>
+                    <p class="mt-2 fw-semibold mb-0">Examen</p>
+                </div>
+            </div>
+            <div class="card text-center flex-fill border-primary {{ 'border-2' if evaluacion.tipo == 'Tarea' }}">
+                <div class="card-body">
+                    <i class="bi bi-upload fs-2 text-primary"></i>
+                    <p class="mt-2 fw-semibold mb-0">Tarea</p>
+                </div>
+            </div>
+            <div class="card text-center flex-fill border-primary {{ 'border-2' if evaluacion.tipo == 'Proyecto' }}">
+                <div class="card-body">
+                    <i class="bi bi-kanban fs-2 text-primary"></i>
+                    <p class="mt-2 fw-semibold mb-0">Proyecto</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    {% if evaluacion.url_entrega %}
+    <div class="mb-4">
+        <label class="form-label">Enlace al examen</label>
+        <input type="text" class="form-control" value="{{ evaluacion.url_entrega }}" disabled>
+    </div>
+    {% endif %}
+    {% if evaluacion.archivo_entrega %}
+    <div class="mb-3">
+        <label class="form-label fw-semibold">Archivo entregado</label>
+        <div class="input-group">
+            <input type="text" class="form-control" value="{{ evaluacion.archivo_entrega }}" readonly>
+            <a href="plataforma_educativa_unad\archivos" class="btn btn-primary" download>
+                <i class="bi bi-download"></i> Descargar
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+    <a href="/evaluaciones-estudiante" class="btn btn-secondary mt-3">
+        <i class="bi bi-arrow-left-circle me-1"></i> Volver
+    </a>
+
+
+
+
+</div>
+{% endblock %}

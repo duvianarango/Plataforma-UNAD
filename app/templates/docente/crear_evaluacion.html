@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="#">Evaluaciones</a></li>
+            <li class="breadcrumb-item active" aria-current="page">
+                {% if modo_edicion == 'ver' %}Ver Evaluación
+                {% elif modo_edicion == 'editar' %}Editar Evaluación
+                {% else %}Crear Evaluación
+                {% endif %}
+            </li>
+        </ol>
+    </nav>
+
+    <h4 class="fw-bold mb-4">
+        {% if modo_edicion == 'ver' %}Detalle Evaluación
+        {% elif modo_edicion == 'editar' %}Editar Evaluación
+        {% else %}Crear Nueva Evaluación
+        {% endif %}
+    </h4>
+
+    <form method="post" enctype="multipart/form-data"
+        action="{% if modo_edicion == 'editar' %}/evaluaciones/{{ evaluacion.id }}/editar{% else %}/evaluaciones/crear{% endif %}">
+        
+        <input type="hidden" name="modo_edicion" value="{{ modo_edicion }}">
+
+        <div class="mb-3">
+            <label for="titulo" class="form-label fw-semibold">Título de la evaluación</label>
+            <input type="text" class="form-control" id="titulo" name="titulo"
+                value="{{ evaluacion.titulo if evaluacion }}" 
+                {% if modo_edicion == 'ver' %}disabled{% endif %} required>
+        </div>
+
+        <div class="mb-3">
+            <label for="descripcion" class="form-label fw-semibold">Descripción</label>
+            <textarea class="form-control" id="descripcion" name="descripcion" rows="3"
+                {% if modo_edicion == 'ver' %}disabled{% endif %}>{{ evaluacion.descripcion if evaluacion }}</textarea>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="fechaInicio" class="form-label fw-semibold">Fecha de inicio</label>
+                <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio"
+                    value="{{ evaluacion.fecha_inicio if evaluacion }}"
+                    {% if modo_edicion == 'ver' %}disabled{% endif %} required>
+            </div>
+            <div class="col-md-6">
+                <label for="fechaLimite" class="form-label fw-semibold">Fecha límite</label>
+                <input type="date" class="form-control" id="fecha_limite" name="fecha_limite"
+                    value="{{ evaluacion.fecha_limite if evaluacion }}"
+                    {% if modo_edicion == 'ver' %}disabled{% endif %} required>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <label for="curso" class="form-label fw-semibold">Curso</label>
+                                
+                <select class="form-select" id="curso_id" name="curso_id" {% if modo_edicion == 'ver' %}disabled{% endif %} required>
+                    <option value="" disabled {% if not evaluacion %}selected{% endif %}>Selecciona un curso</option>
+                    {% for curso in cursos %}
+                        <option value="{{ curso.id }}"
+                            {% if evaluacion and curso.id == evaluacion.curso_id|int %}selected{% endif %}>
+                            {{ curso.titulo }}
+                        </option>
+                    {% endfor %}   
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label for="puntaje" class="form-label fw-semibold">Puntaje máximo</label>
+                <input type="number" class="form-control" id="puntaje_maximo" name="puntaje_maximo"
+                    value="{{ evaluacion.puntaje_maximo if evaluacion }}"
+                    {% if modo_edicion == 'ver' %}disabled{% endif %} required>
+            </div>
+        </div>
+
+        <input type="hidden" name="tipo" id="tipoSeleccionado" value="{{ evaluacion.tipo if evaluacion }}">
+
+        <label class="form-label fw-semibold mb-2">Tipo de Evaluación</label>
+        <div class="d-flex gap-3 mb-4">
+            {% set tipos = ["Examen", "Tarea", "Proyecto"] %}
+            {% for tipo in tipos %}
+            <div class="card flex-fill border-primary shadow-sm tipo-card {% if modo_edicion == 'ver' %}no-pointer{% endif %}"
+                 data-tipo="{{ tipo }}">
+                <div class="card-body text-center">
+                    {% if tipo == 'Examen' %}
+                        <i class="bi bi-journal-text fs-2 text-primary"></i>
+                    {% elif tipo == 'Tarea' %}
+                        <i class="bi bi-file-earmark-arrow-up fs-2 text-primary"></i>
+                    {% elif tipo == 'Proyecto' %}
+                        <i class="bi bi-kanban fs-2 text-primary"></i>
+                    {% endif %}
+                    <h6 class="fw-bold mt-2">{{ tipo }}</h6>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div id="campoAdicional" class="mb-4">
+            {% if evaluacion and evaluacion.tipo == 'Examen' %}
+                <label class="form-label fw-semibold">Enlace al examen</label>
+                <input type="url" name="url_entrega" class="form-control"
+                    value="{{ evaluacion.url_entrega }}" {% if modo_edicion == 'ver' %}disabled{% endif %} required>
+            {% elif evaluacion %}
+            <label class="form-label fw-semibold">Archivo entregado</label>
+            {% if modo_edicion == 'ver' %}
+                {% if evaluacion.archivo_entrega %}
+                    <div class="input-group">
+                        <input type="text" class="form-control" value="{{ evaluacion.archivo_entrega }}" disabled>
+                        <a href="/descargar-archivo/{{ evaluacion.id }}" class="btn btn-primary" download>
+                            <i class="bi bi-download"></i> Descargar
+                        </a>
+                    </div>
+                {% else %}
+                    <p class="form-control">No hay archivo disponible</p>
+                {% endif %}
+            {% else %}
+                <input type="file" name="archivo_entrega" class="form-control" required>
+            {% endif %}
+        {% endif %}
+        </div>
+
+        {% if modo_edicion != 'ver' %}
+        <div class="d-flex justify-content-end gap-2">
+            <a href="/principal-evaluaciones" class="btn btn-light">Cancelar</a>
+            <button type="submit" class="btn btn-primary fw-bold">
+                {% if modo_edicion == 'editar' %}Actualizar Evaluación{% else %}Crear Evaluación{% endif %}
+            </button>
+        </div>
+        {% else %}
+        <div class="d-flex justify-content-end">
+            <a href="/principal-evaluaciones" class="btn btn-secondary">Volver</a>
+        </div>
+        {% endif %}
+    </form>
+</div>
+
+<!-- Modal de confirmación -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="confirmModalLabel">Confirmar envío</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          ¿Estás seguro de que deseas guardar esta evaluación?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" id="confirmSubmitBtn">Confirmar</button>
+        </div>
+      </div>
+    </div>
+  </div>  
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.querySelector('form');
+        const submitButton = form.querySelector('button[type="submit"]');
+        const tipoCards = document.querySelectorAll('.tipo-card');
+        const tipoInput = document.getElementById('tipoSeleccionado');
+        const campoAdicional = document.getElementById('campoAdicional');
+        const modoEdicion = "{{ modo_edicion }}";
+
+        tipoCards.forEach(card => {
+            card.addEventListener('click', () => {
+                if (modoEdicion === 'ver') return;
+
+                tipoCards.forEach(c => c.classList.remove('border-3', 'border-success'));
+                card.classList.add('border-3', 'border-success');
+
+                const tipo = card.dataset.tipo;
+                tipoInput.value = tipo;
+
+                if (tipo === 'Examen') {
+                    campoAdicional.innerHTML = `
+                        <label class="form-label fw-semibold">Enlace al examen</label>
+                        <input type="url" name="url_entrega" class="form-control" placeholder="https://ejemplo.com/examen" required>
+                    `;
+                } else {
+                    campoAdicional.innerHTML = `
+                        <label class="form-label fw-semibold">Subir documento</label>
+                        <input type="file" name="archivo_entrega" class="form-control" required>
+                    `;
+                }
+            });
+        });
+
+        if (submitButton && "{{ modo_edicion }}" !== "ver") {
+        submitButton.addEventListener('click', function (event) {
+            event.preventDefault(); // Evita el envío inmediato
+            const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
+            modal.show();
+        });
+
+        document.getElementById('confirmSubmitBtn').addEventListener('click', function () {
+            form.submit(); // Envía el formulario cuando el usuario confirma
+        });
+        }
+    });
+</script>
+{% endblock %}

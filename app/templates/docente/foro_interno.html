@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Foro de discusión - Fase 4</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+    <style>
+        body {
+            background-color: #f9f9f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .foro-container {
+            background-color: #fff;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+        }
+        .encabezado {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1b69dd;
+        }
+        .subtitulo {
+            font-size: 1.1rem;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+        .mensaje {
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid #e3e6ea;
+        }
+        .nombre {
+            font-weight: 600;
+            color: #1b69dd;
+            font-size: 1rem;
+        }
+        .fecha {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+        .comentario {
+            margin-top: 10px;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+        .btn-agregar {
+            margin-top: 30px;
+        }
+        #formulario-mensaje {
+            display: none;
+            margin-top: 30px;
+            background-color: #eef4ff;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #cfe2ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container my-5">
+        <div class="foro-container">
+            <div class="encabezado mb-2" id="foroTitulo">{{ foro.titulo }}</div>
+            <div class="subtitulo" id="foroContenido">{{ foro.contenido }}</div>
+            <div class="subtitulo mb-4">Curso: <strong id="cursoTitulo">{{ curso.titulo }}</strong></div>
+
+            <!-- Mensajes -->
+            <div id="area-mensajes-nuevos"></div>
+
+            <!-- Botones -->
+            <div class="text-end btn-agregar d-flex justify-content-end gap-2">
+                <button id="btnMostrarFormulario" class="btn btn-primary fw-bold">
+                    <i class="bi bi-chat-left-text me-1"></i> Nuevo mensaje
+                </button>
+                <a href="/foro_principal" class="btn btn-outline-secondary fw-bold">
+                    <i class="bi bi-x-circle me-1"></i> Cancelar
+                </a>
+            </div>
+
+            <!-- Formulario -->
+            <div id="formulario-mensaje">
+                <label for="mensajeTexto" class="form-label fw-bold">Escribe tu mensaje:</label>
+                <div id="mensajeTexto" class="form-control" style="height: 200px;"></div>
+                <div class="text-end mt-3">
+                    <button id="btnPublicar" class="btn btn-success fw-bold">
+                        <i class="bi bi-send me-1"></i> Publicar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="position-fixed top-50 start-50 translate-middle p-3" style="z-index: 1055">
+        <div id="toastConfirmacion" class="toast align-items-center text-bg-primary border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body text-white">¡Tu mensaje ha sido publicado con éxito!</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        let quill;
+        const foroId = parseInt("{{ foro.id }}");
+        window.onload = () => obtenerMensajes(foroId);
+
+        function obtenerMensajes(foroId) {
+            fetch(`/mensajes/${foroId}`)
+                .then(response => response.json())
+                .then(data => {
+                    const areaMensajes = document.getElementById('area-mensajes-nuevos');
+                    areaMensajes.innerHTML = "";
+                    data.mensajes.forEach(mensaje => {
+                        const mensajeDiv = document.createElement("div");
+                        mensajeDiv.classList.add("mensaje");
+                        mensajeDiv.innerHTML = `
+                            <div class="nombre">${mensaje.usuario?.nombre || "Usuario desconocido"}</div>
+                            <div class="fecha">${new Date(mensaje.fecha + 'Z').toLocaleString()}</div>
+                            <div class="comentario">${mensaje.contenido}</div>
+                        `;
+                        areaMensajes.appendChild(mensajeDiv);
+                    });
+                })
+                .catch(error => console.error("Error al obtener los mensajes:", error));
+        }
+
+        document.getElementById('btnMostrarFormulario').addEventListener('click', function () {
+            document.getElementById('formulario-mensaje').style.display = 'block';
+            if (!quill) {
+                quill = new Quill('#mensajeTexto', {
+                    theme: 'snow',
+                    placeholder: 'Escribe tu mensaje...',
+                    modules: {
+                        toolbar: [['bold', 'italic', 'underline'], [{ 'list': 'ordered' }, { 'list': 'bullet' }], ['link']]
+                    }
+                });
+            }
+            this.disabled = true;
+        });
+
+        document.getElementById('btnPublicar').addEventListener('click', function () {
+            const contenido = quill.root.innerHTML.trim();
+            if (!contenido) return alert('Por favor escribe un mensaje antes de publicar.');
+
+            fetch("/guardar_mensaje", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ contenido, foro_id: foroId })
+            })
+            .then(response => response.json())
+            .then(() => {
+                new bootstrap.Toast(document.getElementById('toastConfirmacion')).show();
+                obtenerMensajes(foroId);
+                quill.root.innerHTML = '';
+                document.getElementById('formulario-mensaje').style.display = 'none';
+                document.getElementById('btnMostrarFormulario').disabled = false;
+            })
+            .catch(error => console.error("Error al guardar el mensaje:", error));
+        });
+    </script>
+</body>
+</html>

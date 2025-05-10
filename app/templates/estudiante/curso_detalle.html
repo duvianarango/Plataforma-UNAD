@@ -1,0 +1,51 @@
+{% extends "estudiante/base.html" %}
+
+{% block content %}
+<div class="container mt-5 text-center">
+    <div class="alert alert-info" role="alert">
+        {{ mensaje }}
+    </div>
+    <a href="{{ redirect_url }}" class="btn btn-primary">Volver al curso</a>
+</div>
+{% endblock %}
+
+
+--- curso.html (vista del curso) ---
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>{{ curso.titulo }}</h2>
+    <p>{{ curso.descripcion }}</p>
+
+    <div class="progress my-3">
+      <div class="progress-bar bg-success" role="progressbar"  aria-valuenow="{{ progreso }}" aria-valuemin="0" aria-valuemax="100">
+        {{ progreso }}%
+      </div>
+    </div>
+
+    <h4>Materiales</h4>
+    <ul class="list-group mb-4">
+        {% for mat in materiales %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                {{ mat.nombre }} ({{ mat.tipo }})
+                <a href="#" class="btn btn-sm btn-outline-primary">Ver</a>
+            </li>
+        {% else %}
+            <li class="list-group-item">No hay materiales disponibles</li>
+        {% endfor %}
+    </ul>
+
+    <h4>Evaluaciones</h4>
+    <ul class="list-group">
+        {% for ev in evaluaciones %}
+            <li class="list-group-item">
+                {{ ev.titulo }} - {{ ev.instrucciones }}
+            </li>
+        {% else %}
+            <li class="list-group-item">Sin evaluaciones aún</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

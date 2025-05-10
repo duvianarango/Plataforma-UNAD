@@ -1,0 +1,161 @@
+{% extends "estudiante/base.html" %} {# Asegúrate que esta sea tu plantilla base correcta #}
+
+{% block titulo %}Cursos Disponibles | Clase Tech{% endblock %}
+
+{% block estilos_adicionales %}
+<style>
+    .page-header-cursos {
+        padding-bottom: 1.5rem;
+        margin-bottom: 2.5rem; 
+        border-bottom: 1px solid var(--bs-border-color-translucent, #dee2e6);
+        text-align: center; 
+    }
+    .page-header-cursos h1 { 
+        font-weight: 700;
+        color: var(--bs-primary, #0d6efd); 
+    }
+    .page-header-cursos .subtitulo {
+        font-size: 1.1rem;
+        color: var(--bs-secondary-text, #6c757d); 
+    }
+
+    .curso-card-item { 
+        background-color: var(--bs-body-bg, #fff);
+        border: 1px solid var(--bs-border-color-translucent, #dee2e6);
+        border-radius: 0.75rem; 
+        box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,.07); 
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        display: flex;
+        flex-direction: column;
+        height: 100%; 
+    }
+
+    .curso-card-item:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 .75rem 1.5rem rgba(0,0,0,.1);
+    }
+
+    .curso-card-item .card-icon-top {
+        padding: 1.5rem 1rem 1rem 1rem; 
+        text-align: center;
+        border-bottom: 1px solid var(--bs-border-color-translucent, #dee2e6);
+        background-color: rgba(var(--bs-primary-rgb), 0.05); 
+        border-top-left-radius: calc(0.75rem - 1px); 
+        border-top-right-radius: calc(0.75rem - 1px);
+    }
+    .curso-card-item .card-icon-top .bi {
+        font-size: 2.8rem;
+        color: var(--bs-primary, #0d6efd);
+    }
+
+    .curso-card-item .card-body {
+        padding: 1.25rem;
+        text-align: center; 
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1; 
+    }
+
+    .curso-card-item .curso-categoria {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--bs-secondary-text, #6c757d); 
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.35rem;
+    }
+
+    .curso-card-item .card-title {
+        font-size: 1.25rem; 
+        font-weight: 600;
+        color: var(--bs-body-color, #212529);
+        margin-bottom: 0.75rem;
+    }
+
+    .curso-card-item .card-text {
+        font-size: 0.9rem;
+        color: var(--bs-secondary-text, #6c757d);
+        line-height: 1.6; 
+        flex-grow: 1; 
+        margin-bottom: 1.25rem; 
+    }
+
+    .curso-card-item .btn-ver-detalles { 
+        background-color: var(--bs-primary, #0d6efd);
+        border-color: var(--bs-primary, #0d6efd);
+        color: #fff;
+        font-weight: 500;
+        padding: 0.5rem 1.25rem; 
+        border-radius: 50rem; 
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 0.5px;
+        margin-top: auto; 
+        align-self: center; 
+        width: fit-content; 
+    }
+    .curso-card-item .btn-ver-detalles:hover {
+        background-color: var(--bs-primary-dark, #0a58ca); 
+        border-color: var(--bs-primary-dark, #0a58ca);
+    }
+    .curso-card-item .btn-ver-detalles .bi {
+        margin-left: 0.3rem; 
+        font-size: 1rem;
+    }
+    
+    .alert-no-cursos { 
+        background-color: var(--bs-tertiary-bg, #f8f9fa);
+        border: 1px dashed var(--bs-border-color, #ced4da);
+        padding: 2rem;
+        border-radius: 0.5rem;
+    }
+    .alert-no-cursos .bi {
+        font-size: 3rem; 
+        color: var(--bs-primary, #0d6efd);
+        margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block contenido %}
+<div class="container mt-4 mb-5"> 
+    
+    <div class="page-header-cursos">
+        <h1>Cursos Disponibles</h1> 
+
+        <p class="subtitulo">Explora los cursos en los que estás inscrito o descubre nuevas oportunidades de aprendizaje.</p> 
+    </div>
+
+    {% if cursos %}
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4"> 
+        {% for curso in cursos %}
+        <div class="col d-flex"> 
+            <div class="card curso-card-item"> 
+                <div class="card-icon-top">
+
+                    <i class="bi bi-easel3"></i> 
+                </div>
+                <div class="card-body">
+                    <small class="curso-categoria d-block mb-1">{{ curso.categoria or "General" }}</small>
+                    <h5 class="card-title">{{ curso.titulo }}</h5>
+                    <p class="card-text">
+                        {{ curso.descripcion|truncate(90, True) }} 
+                    </p>
+
+                    <a href="/detallecurso/{{ curso.id }}" class="btn btn-ver-detalles">
+                        Ver Detalles <i class="bi bi-arrow-right-circle-fill"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-no-cursos text-center mt-5" role="alert">
+        <i class="bi bi-search d-block"></i>
+        <h5 class="fw-semibold">No hay cursos disponibles por el momento.</h5>
+        <p class="mb-0">Actualmente no tienes nuevos cursos por asignar. Te notificaremos cuando haya contenido disponible para ti.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

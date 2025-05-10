@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h4 class="fw-bold mb-4">Evaluaciones</h4>
+    <p class="text-muted">Evaluaciones recientes</p>
+
+    <div class="list-group mb-4">
+        {% for eval in evaluaciones %}
+        <div class="d-flex align-items-center justify-content-between list-group-item list-group-item-action bg-white border rounded shadow-sm mb-2">
+            <div class="d-flex align-items-center gap-3">
+                <i class="bi bi-file-earmark-text-fill text-primary fs-4"></i>
+                <div>
+                    <h6 class="fw-bold mb-1">{{ eval.titulo }} - {{ eval.curso.titulo }}</h6>
+                    <small class="text-muted">Fecha límite: {{ eval.fecha_limite.strftime('%d de %B, %Y') }}</small>
+                </div>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <a href="/evaluaciones/{{ eval.id }}/ver" class="text-decoration-none text-secondary" title="Ver evaluación">
+                    <i class="bi bi-eye-fill"></i>
+                </a>
+                <a href="/evaluaciones/{{ eval.id }}/editar" class="text-decoration-none text-secondary" title="Editar evaluación">
+                    <i class="bi bi-pencil-fill"></i>
+                </a>
+            </div>
+        </div>
+        {% else %}
+        <p class="text-muted">No hay evaluaciones registradas.</p>
+        {% endfor %}
+    </div>
+
+    <a href="/nueva-evaluacion" class="btn btn-primary fw-bold">Crear nueva evaluación</a>
+</div>
+{% endblock %}

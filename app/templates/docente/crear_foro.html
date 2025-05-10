@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Crear Foro de Discusión</title>
+
+    <!-- ✅ Cargar Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --color-primario: #3f75ff;
+            --color-secundario: #f1f5f9;
+            --color-texto: #111827;
+            --color-borde: #d1d5db;
+            --color-fondo: #ffffff;
+            --sombra: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--color-secundario);
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            background-color: var(--color-fondo);
+            box-shadow: var(--sombra);
+        }
+
+        header nav a {
+            margin-right: 20px;
+            text-decoration: none;
+            color: var(--color-texto);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        header nav a:hover {
+            color: var(--color-primario);
+        }
+
+        header button {
+            background-color: var(--color-primario);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        header button:hover {
+            background-color: #305ce0;
+        }
+
+        main {
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: var(--color-fondo);
+            border-radius: 12px;
+            box-shadow: var(--sombra);
+            animation: fadeIn 0.6s ease-in-out;
+        }
+
+        h2 {
+            margin-bottom: 24px;
+            font-size: 28px;
+            color: var(--color-texto);
+            border-left: 6px solid var(--color-primario);
+            padding-left: 12px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        input[type="text"],
+        textarea {
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid var(--color-borde);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            border-color: var(--color-primario);
+            box-shadow: 0 0 0 3px rgba(63, 117, 255, 0.3);
+            outline: none;
+        }
+
+        button[type="submit"] {
+            background-color: var(--color-primario);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #305ce0;
+            transform: translateY(-2px);
+        }
+
+        a.cancelar {
+            margin-left: 16px;
+            color: #6b7280;
+            text-decoration: none;
+            font-size: 15px;
+            transition: color 0.3s;
+        }
+
+        a.cancelar:hover {
+            color: #374151;
+        }
+
+        .acciones {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        select {
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid var(--color-borde);
+            border-radius: 8px;
+            font-size: 16px;
+            background-color: white;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            color: #9ca3af;
+        }
+
+        select:focus {
+            border-color: var(--color-primario);
+            box-shadow: 0 0 0 3px rgba(63, 117, 255, 0.3);
+            outline: none;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<main>
+    <h2>Crear Nuevo Foro de Discusión</h2>
+    <form method="POST" action="/crear_foro">
+        <label for="titulo">Título del Foro</label>
+        <input type="text" id="titulo" name="titulo" required>
+
+        <label for="contenido">Contenido o descripción</label>
+        <textarea id="contenido" name="contenido" rows="6" required></textarea>
+
+        <label for="curso">Curso relacionado</label>
+        <select id="curso_id" name="curso_id" required>
+            <option value="" disabled selected>Selecciona un curso</option>
+            {% for curso in cursos %}
+                <option value="{{ curso.id }}">{{ curso.titulo }}</option>
+            {% endfor %}
+        </select>
+
+        <div class="acciones">
+            <button type="submit">Publicar Foro</button>
+            <a href="/foro_principal" class="cancelar">Cancelar</a>
+        </div>
+    </form>
+</main>
+
+<!-- ✅ Modal de confirmación -->
+<div class="modal fade" id="confirmacionModal" tabindex="-1" aria-labelledby="confirmacionModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmacionModalLabel">Confirmación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                ¡Operación exitosa!
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ✅ Cargar Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- ✅ Script para mostrar el modal si corresponde -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const params = new URLSearchParams(window.location.search);
+        const exito = params.get("exito");
+
+        if (exito && exito === "crear") {
+            const modal = new bootstrap.Modal(document.getElementById('confirmacionModal'));
+            modal.show();
+        }
+
+        const modalElement = document.getElementById("confirmacionModal");
+        modalElement.addEventListener("hidden.bs.modal", function () {
+            window.location.href = "/foro_principal";
+        });
+    });
+</script>
+
+</body>
+</html>

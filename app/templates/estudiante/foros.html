@@ -1,0 +1,124 @@
+{% extends "estudiante/base.html" %}
+
+{% block estilos_adicionales %}
+<style>
+    .foro-curso-card {
+        background-color: #fff; 
+        border: 1px solid var(--bs-border-color-translucent, #dee2e6); 
+        border-radius: 0.5rem; 
+        transition: box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
+        margin-bottom: 1.5rem; 
+    }
+
+    .foro-curso-card:hover {
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.10); 
+        transform: translateY(-3px); 
+    }
+
+    .foro-curso-card .card-body {
+        padding: 1.5rem; 
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .foro-curso-card .curso-info h5 {
+        color: var(--bs-primary, #0d6efd);
+        font-weight: 600; 
+        margin-bottom: 0.35rem;
+    }
+    
+    .foro-curso-card .curso-info .foro-status {
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+    }
+    .foro-curso-card .curso-info .foro-status .bi {
+        margin-right: 0.4rem; 
+        font-size: 1.1rem;
+    }
+
+    .foro-curso-card .foro-accion .btn {
+        font-weight: 500;
+        padding: 0.4rem 0.85rem; 
+    }
+
+    .page-header {
+        padding-bottom: 1.5rem;
+        margin-bottom: 2rem;
+        border-bottom: 1px solid var(--bs-border-color-translucent, #dee2e6);
+    }
+    .page-header .page-title {
+        font-weight: 600;
+        color: #343a40; 
+    }
+    .page-header .breadcrumb-item a {
+        color: var(--bs-primary, #0d6efd);
+        text-decoration: none;
+    }
+    .page-header .breadcrumb-item a:hover {
+        text-decoration: underline;
+    }
+    .page-header .breadcrumb-item.active {
+        color: #6c757d; 
+    }
+
+</style>
+{% endblock %}
+
+{% block contenido %}
+<div class="container mt-4 mb-5"> 
+    
+    <div class="page-header">
+        <nav aria-label="breadcrumb" style="--bs-breadcrumb-divider: '>';">
+            <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item"><a href="{{ url_for('dashboard_estudiante') }}">Inicio</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Foros por Curso</li>
+            </ol>
+        </nav>
+        <h2 class="page-title">Foros Disponibles</h2>
+    </div>
+
+    {% if cursos %}
+    <div class="row row-cols-1 row-cols-md-2 g-4"> 
+        {% for curso in cursos %}
+        <div class="col">
+            <div class="card foro-curso-card h-100"> 
+                <div class="card-body">
+                    <div class="curso-info">
+                        <h5>{{ curso.titulo }}</h5> 
+                        {% if curso.tiene_foro %}
+                            <p class="mb-0 text-success foro-status">
+                                <i class="bi bi-check-circle-fill"></i>Foro disponible
+                            </p>
+                        {% else %}
+                            <p class="mb-0 text-muted foro-status">
+                                <i class="bi bi-x-circle"></i>No tiene foro creado aún
+                            </p>
+                        {% endif %}
+                    </div>
+                    <div class="foro-accion">
+                        {% if curso.tiene_foro %}
+                            {# Asegúrate que la ruta y el parámetro sean correctos #}
+                            <a href="{{ url_for('ver_foro_curso', foro_id=curso.foro_id) }}" class="btn btn-primary btn-sm">
+                                <i class="bi bi-arrow-right-circle me-1"></i>Ver Foro
+                            </a>
+                        {% else %}
+                            <button class="btn btn-outline-secondary btn-sm" disabled>
+                                <i class="bi bi-eye-slash me-1"></i>Ver Foro
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-light text-center mt-4 p-4 border"> {# Alerta más sutil #}
+        <i class="bi bi-info-circle-fill fs-3 d-block mb-2 text-primary"></i>
+        <p class="mb-0">No estás inscrito en ningún curso que tenga foros disponibles actualmente.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

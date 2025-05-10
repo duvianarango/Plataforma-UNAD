@@ -1,0 +1,167 @@
+{% extends "estudiante/base.html" %} {# Asumiendo que tu base se llama así #}
+
+{% block titulo %}Dashboard | Clase Tech{% endblock %}
+
+{% block estilos_adicionales %}
+<style>
+    .dashboard-header {
+        background: linear-gradient(135deg, var(--color-primario-azul, #1a56db) 0%, #0d6efd 100%); /* Degradado azul */
+        color: var(--color-blanco, #ffffff);
+        padding: 2.5rem 1.5rem;
+        margin-bottom: 2.5rem;
+        border-radius: 0.75rem;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    .dashboard-header h1 {
+        font-weight: 700;
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+    .dashboard-header p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+    }
+
+    .cursos-grid .curso-card-dashboard { 
+        background-color: var(--color-blanco, #ffffff);
+        border: 1px solid var(--color-gris-bordes, #dee2e6);
+        border-radius: 0.75rem; 
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        display: flex;
+        flex-direction: column;
+        height: 100%; 
+        box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,.075); 
+    }
+
+    .cursos-grid .curso-card-dashboard:hover {
+        transform: translateY(-5px); 
+        box-shadow: 0 .5rem 1.5rem rgba(0,0,0,.12); 
+    }
+
+    .curso-card-dashboard .card-img-top-placeholder {
+        background-color: #e9ecef; 
+        height: 160px; 
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-top-left-radius: 0.75rem;
+        border-top-right-radius: 0.75rem;
+    }
+    .curso-card-dashboard .card-img-top-placeholder .bi {
+        font-size: 3.5rem; 
+        color: #adb5bd; 
+    }
+
+
+    .curso-card-dashboard .card-body {
+        padding: 1.25rem;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1; 
+    }
+
+    .curso-card-dashboard .curso-area {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--color-primario-azul, #1a56db);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.35rem;
+        display: block; 
+    }
+
+    .curso-card-dashboard .card-title {
+        font-weight: 600; 
+        font-size: 1.2rem;
+        color: #343a40; 
+        margin-bottom: 0.5rem;
+    }
+
+    .curso-card-dashboard .card-text {
+        font-size: 0.9rem;
+        color: #6c757d; 
+        flex-grow: 1; 
+        margin-bottom: 1rem;
+        line-height: 1.5;
+    }
+
+    .curso-card-dashboard .btn-detalle-curso {
+        background-color: var(--color-primario-azul, #1a56db);
+        border-color: var(--color-primario-azul, #1a56db);
+        color: var(--color-blanco, #ffffff);
+        font-weight: 500;
+        padding: 0.5rem 1rem;
+        border-radius: 0.3rem; 
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 0.5px;
+        align-self: flex-start; 
+        margin-top: auto; 
+    }
+    .curso-card-dashboard .btn-detalle-curso:hover {
+        background-color: var(--color-primario-azul-hover, #174bc1);
+        border-color: var(--color-primario-azul-hover, #174bc1);
+        color: var(--color-blanco, #ffffff);
+    }
+
+    .no-cursos-alert {
+        background-color: var(--color-blanco, #ffffff);
+        border: 1px dashed var(--color-gris-bordes, #dee2e6);
+        color: #6c757d;
+        padding: 2rem;
+        border-radius: 0.5rem;
+    }
+    .no-cursos-alert .bi {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+        color: var(--color-primario-azul, #1a56db);
+    }
+
+</style>
+{% endblock %}
+
+{% block contenido %}
+<div class="container-fluid px-md-4 py-4"> 
+
+
+    <div class="container"> 
+        <h4 class="fw-bold mb-4">Tus Cursos Asignados</h4>
+
+        {% if cursos %}
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 cursos-grid"> 
+                {% for curso in cursos %}
+                <div class="col">
+                    <div class="card curso-card-dashboard">
+
+                        <div class="card-img-top-placeholder">
+
+                            <i class="bi bi-book-half"></i> 
+                        </div>
+                        <div class="card-body">
+                            {% if curso.area %} 
+                                <span class="curso-area">{{ curso.area }}</span>
+                            {% endif %}
+                            <h5 class="card-title">{{ curso.titulo }}</h5>
+                            <p class="card-text">
+                                {{ curso.descripcion|truncate(120, True) }} 
+                            </p>
+                            {# El div para d-flex justify-content-between no es necesario si solo hay un botón #}
+                            <a href="/detallecurso/{{ curso.id }}" class="btn btn-detalle-curso">
+                                Ver Detalles <i class="bi bi-arrow-right-short"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert no-cursos-alert text-center mt-4">
+                <i class="bi bi-emoji-frown"></i>
+                <h5 class="mt-2">Aún no tienes cursos asignados</h5>
+                <p class="mb-0">Cuando te inscribas o te asignen cursos, aparecerán aquí.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

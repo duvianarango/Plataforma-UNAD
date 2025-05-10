@@ -1,0 +1,163 @@
+{% extends "estudiante/base.html" %} {# O la base que corresponda #}
+
+{% block titulo %}Evaluaciones por Curso | Clase Tech{% endblock %}
+
+{% block estilos_adicionales %}
+<style>
+    .page-header-evaluaciones {
+        padding-bottom: 1.5rem;
+        margin-bottom: 2.5rem;
+        border-bottom: 1px solid var(--bs-border-color-translucent, #dee2e6);
+    }
+    .page-header-evaluaciones h1 {
+        font-weight: 700;
+        color: var(--bs-primary, #0d6efd);
+    }
+    .page-header-evaluaciones .subtitulo {
+        font-size: 1.1rem;
+        color: var(--bs-secondary-text, #6c757d);
+    }
+
+    .curso-evaluaciones-card {
+        background-color: var(--bs-body-bg, #fff);
+        border: 1px solid var(--bs-border-color-translucent, #dee2e6);
+        border-radius: 0.65rem; 
+        margin-bottom: 2rem; 
+        box-shadow: 0 0.25rem 0.75rem rgba(0,0,0,.06);
+        overflow: hidden; 
+    }
+
+    .curso-evaluaciones-card .card-header {
+        background-color: var(--bs-primary-bg-subtle, #cfe2ff); 
+        color: var(--bs-primary-text-emphasis, #052c65);
+        padding: 1rem 1.25rem;
+        font-size: 1.15rem;
+        font-weight: 600;
+        border-bottom: 1px solid var(--bs-border-color-translucent, #dee2e6);
+    }
+    .curso-evaluaciones-card .card-header .bi {
+        margin-right: 0.6rem; 
+        font-size: 1.3rem;
+    }
+
+    .curso-evaluaciones-card .list-group-item {
+        padding: 1rem 1.25rem;
+        border-left: none;
+        border-right: none;
+        transition: background-color 0.15s ease-in-out;
+    }
+    .curso-evaluaciones-card .list-group-item:hover {
+        background-color: var(--bs-tertiary-bg, #f8f9fa); 
+    }
+
+    .curso-evaluaciones-card .list-group-item:last-child {
+        border-bottom: none; 
+    }
+    
+    .evaluacion-info h6 {
+        font-weight: 500;
+        color: var(--bs-body-color, #212529);
+        margin-bottom: 0.2rem;
+    }
+    .evaluacion-info .text-muted {
+        font-size: 0.85rem;
+        line-height: 1.4;
+    }
+
+    .evaluacion-accion .btn-ver-evaluacion {
+        font-weight: 500;
+        font-size: 0.85rem;
+        padding: 0.35rem 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .evaluacion-accion .btn-ver-evaluacion .bi {
+        margin-right: 0.3rem;
+    }
+
+    .alert-sin-evaluaciones { 
+        background-color: var(--bs-secondary-bg-subtle, #e2e3e5);
+        color: var(--bs-secondary-text-emphasis, #41464b);
+        border: none;
+        border-radius: 0.375rem;
+        font-size: 0.9rem;
+        margin: 0; 
+    }
+    .alert-sin-evaluaciones .bi {
+        margin-right: 0.5rem;
+    }
+
+    .alert-no-cursos-con-evaluaciones { 
+        background-color: var(--bs-tertiary-bg, #f8f9fa);
+        border: 1px dashed var(--bs-border-color, #ced4da);
+        padding: 2rem;
+        border-radius: 0.5rem;
+    }
+    .alert-no-cursos-con-evaluaciones .bi {
+        font-size: 3rem;
+        color: var(--bs-primary, #0d6efd);
+        margin-bottom: 1rem;
+    }
+
+</style>
+{% endblock %}
+
+{% block contenido %}
+<div class="container mt-4 mb-5">
+
+    <div class="page-header-evaluaciones">
+        <nav aria-label="breadcrumb" style="--bs-breadcrumb-divider: '>';">
+            <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item"><a href="{{ url_for('dashboard_estudiante') }}">Dashboard</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Evaluaciones</li>
+            </ol>
+        </nav>
+        <h1>Evaluaciones por Curso</h1>
+        <p class="subtitulo">Consulta las evaluaciones programadas para cada uno de tus cursos.</p>
+    </div>
+
+    {% if datos %} 
+        {% for item in datos %}
+        <div class="card curso-evaluaciones-card">
+            <div class="card-header">
+                <i class="bi bi-folder2-open"></i> {{ item.curso.titulo }}
+            </div>
+            <div class="card-body p-0"> 
+                {% if item.evaluaciones %}
+                    <ul class="list-group list-group-flush"> {# list-group-flush para quitar bordes laterales y redondear con la tarjeta #}
+                        {% for ev in item.evaluaciones %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div class="evaluacion-info">
+                                <h6 class="mb-1">{{ ev.titulo }}</h6>
+                                <small class="text-muted">
+                                    {{ ev.instrucciones|truncate(100, True) if ev.instrucciones else "Instrucciones no disponibles." }}
+                                </small>
+                            </div>
+                            <div class="evaluacion-accion ms-3"> {# ms-3 para un pequeño margen a la izquierda del botón #}
+                                {# Asegúrate que esta URL sea la correcta para ver el detalle de UNA evaluación #}
+                                <a href="{{ url_for('ver_evaluacion', evaluacion_id=ev.id) }}" class="btn btn-outline-primary btn-ver-evaluacion">
+                                    <i class="bi bi-eye"></i>Ver
+                                </a>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="card-body text-center"> {# Si no hay evaluaciones, mostrar mensaje dentro del card-body #}
+                        <div class="alert alert-sin-evaluaciones m-0" role="alert">
+                           <i class="bi bi-info-circle"></i> No hay evaluaciones asignadas a este curso por el momento.
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-no-cursos-con-evaluaciones text-center mt-4">
+            <i class="bi bi-journal-x d-block"></i>
+            <h5 class="fw-semibold">No hay cursos con evaluaciones para mostrar.</h5>
+            <p class="mb-0">Parece que no estás inscrito en cursos que tengan evaluaciones o aún no se han cargado.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

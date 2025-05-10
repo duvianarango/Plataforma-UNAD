@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Formulario -->
+<div class="container mt-5 d-flex justify-content-center">
+    <div class="create-course-form w-100">
+        {% if modo_edicion == 'ver' %}
+            <h4 class="fw-bold">Detalle Curso</h4>
+            <p class="text-muted small">Información básica</p>
+        {% elif modo_edicion == 'editar' %}
+            <h4 class="fw-bold">Editar Curso</h4>
+            <p class="text-muted small">Modifique la información básica</p>
+        {% else %}
+            <h4 class="fw-bold">Crear Curso</h4>
+            <p class="text-muted small">Complete la información básica</p>
+        {% endif %}
+
+        <form 
+            id="{{ 'editar-curso-form' if modo_edicion == 'editar' else 'crear-curso-form' }}"
+            action="{{ '/curso/' ~ curso.id ~ '/editar' if modo_edicion == 'editar' else '/guardar-curso' }}"
+            method="POST">
+            <input type="hidden" name="creador_id" value="{{ user_id }}">
+            <input type="hidden" name="modo_edicion" value="{{ modo_edicion }}">
+
+            <div class="mb-3">
+                <label for="nombre" class="form-label small fw-bold">Nombre del Curso</label>
+                <input type="text" class="form-control" id="titulo" name="titulo"
+                    value="{{ curso.titulo }}" 
+                    {% if modo_edicion == 'ver' %}disabled{% endif %}
+                    required placeholder="Ej: Matemáticas Avanzadas">
+            </div>
+
+            <div class="mb-3">
+                <label for="codigo" class="form-label small fw-bold">Código</label>
+                <input type="text" class="form-control" id="codigo" name="codigo"
+                    value="{{ curso.codigo }}" 
+                    {% if modo_edicion == 'ver' %}disabled{% endif %}
+                    required placeholder="Ej: MAT:1101">
+            </div>
+
+            <div class="mb-3">
+                <label for="departamento" class="form-label small fw-bold">Departamento</label>
+                <input type="text" class="form-control" id="departamento" name="departamento" 
+                    value="{{ curso.departamento }}" 
+                    {% if modo_edicion == 'ver' %}disabled{% endif %}
+                    placeholder="Ej: Ciencias Exactas">
+            </div>
+
+            <div class="mb-3">
+                <label for="descripcion" class="form-label small fw-bold">Descripción</label>
+                <textarea class="form-control" id="descripcion" name="descripcion" rows="4" 
+                    {% if modo_edicion == 'ver' %}disabled{% endif %}
+                    required placeholder="Breve descripción del curso">{{ curso.descripcion }}</textarea>
+            </div>
+
+            <div class="mb-3 d-flex flex-row gap-3">
+                <div class="w-50">
+                    <label for="creditos" class="form-label small fw-bold">Créditos</label>
+                    <input type="number" class="form-control" id="creditos" name="creditos" 
+                        value="{{ curso.creditos }}" 
+                        {% if modo_edicion == 'ver' %}disabled{% endif %}
+                        required placeholder="Ej: 4">
+                </div>
+                <div class="w-50">
+                    <label for="horas" class="form-label small fw-bold">Horas</label>
+                    <input type="number" class="form-control" id="horas" name="horas" 
+                        value="{{ curso.horas }}" 
+                        {% if modo_edicion == 'ver' %}disabled{% endif %}
+                        required placeholder="Ej: 6">
+                </div>
+            </div>
+
+            <div class="mb-3 d-flex flex-row gap-3">
+                <div class="w-50">
+                    <label for="fecha_inicio" class="form-label small fw-bold">Fecha de Inicio</label>
+                    <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio" required
+                        value="{{ curso.fecha_inicio }}" 
+                        {% if modo_edicion == 'ver' %}disabled{% endif %}>
+                </div>
+                <div class="w-50">
+                    <label for="fecha_fin" class="form-label small fw-bold">Fecha de Fin</label>
+                    <input type="date" class="form-control" id="fecha_fin" name="fecha_fin" required
+                        value="{{ curso.fecha_fin }}" 
+                        {% if modo_edicion == 'ver' %}disabled{% endif %}>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="cupo_maximo" class="form-label small fw-bold">Cupo Máximo</label>
+                <input type="number" class="form-control" id="cupo_maximo" name="cupo_maximo" 
+                    value="{{ curso.cupo_maximo }}" 
+                    {% if modo_edicion == 'ver' %}disabled{% endif %}
+                    required placeholder="Ej: 30">
+            </div>
+
+            {% if modo_edicion != 'ver' %}
+            <div class="d-flex justify-content-end">
+                <button type="submit" class="btn btn-primary me-2">
+                    {% if modo_edicion == 'editar' %}Actualizar{% else %}Guardar{% endif %}
+                </button>
+                <a href="/dashboard-docente" class="btn btn-secondary">Cancelar</a>
+            </div>
+            {% else %}
+            <div class="d-flex justify-content-end">
+                <a href="/dashboard-docente" class="btn btn-secondary">Volver</a>
+            </div>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<!-- Modal de confirmación -->
+<div class="modal fade" id="confirmacionModal" tabindex="-1" aria-labelledby="confirmacionModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmacionModalLabel">Confirmación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                ¡Operación exitosa!
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const params = new URLSearchParams(window.location.search);
+        const exito = params.get("exito");
+
+        // Verificar si el parámetro 'exito' tiene los valores esperados
+        if (exito && (exito === "crear" || exito === "editar")) {
+            const modal = new bootstrap.Modal(document.getElementById('confirmacionModal'));
+            modal.show();
+        }
+
+        // Redirigir al dashboard-docente cuando se cierra el modal
+        // Redirigir al dashboard-docente cuando el modal se cierra
+        const modalElement = document.getElementById("confirmacionModal");
+        modalElement.addEventListener("hidden.bs.modal", function () {
+            window.location.href = "/dashboard-docente";  // Redirige a la página del dashboard
+        });
+    });
+</script>
+{% endblock %}
