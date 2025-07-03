@@ -37,7 +37,7 @@ def obtener_mensajes_curso(db: Session, curso_id: int):
 def obtener_foros_por_usuario(db: Session, usuario_id: int):
     return db.query(modelos.Foro).filter(modelos.Foro.usuario_id == usuario_id).all()
 
-
+# Crear un nuevo mensaje
 def crear_mensaje(db: Session, contenido: str, foro_id: int, usuario_id: int):
     nuevo_mensaje = modelos.MensajeForo(
         contenido=contenido,
@@ -60,14 +60,16 @@ def obtener_mensaje(db: Session, mensaje_id: int):
 
 # crud_foro.py
 
+
 def obtener_mensajes_por_foro(db: Session, foro_id: int):
     return (
         db.query(modelos.MensajeForo)
         .filter(modelos.MensajeForo.foro_id == foro_id)
-        .options(joinedload(modelos.MensajeForo.usuario))
+        .join(modelos.MensajeForo.usuario)  # para que Jinja2 acceda a mensaje.usuario.nombre
         .order_by(modelos.MensajeForo.fecha.asc())
         .all()
     )
+
 
 def obtener_cursos_con_usuario(db: Session, usuario_id: int):
     usuario = db.query(modelos.Usuario).filter(modelos.Usuario.id == usuario_id).first()
